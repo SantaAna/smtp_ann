@@ -21,6 +21,12 @@ defmodule SmtpAnn.Header do
       rec = Enum.map(labels["Received"], &parse_received/1)
       Map.put(labels, "Received", rec)
     end)
+    |> applicative(fn labels ->
+      Map.put(labels, "Received", delay_added(labels))
+    end)
+    |> applicative(fn labels ->
+      Map.put(labels, "delivery_time", total_delivery_time(labels))
+    end)
     |> applicative(fn
       %{"Received-SPF" => spf_headers} = input ->
         rec = Enum.map(spf_headers, &parse_spf/1)
@@ -48,6 +54,34 @@ defmodule SmtpAnn.Header do
       {:error, _} ->
         IO.inspect(value, label: "rejected value")
     end
+  end
+
+  def total_delivery_time(%{"Received" => r}) do
+    r
+    |> Enum.filter(&match?({:ok, _}, &1))
+    |> Enum.map(fn {:ok, entry} ->
+      case entry["delay_added"] do
+        nil -> 0
+        n when n < 0 -> 0
+        n -> n
+      end
+    end)
+    |> Enum.sum()
+  end
+
+  def delay_added(%{"Received" => r}) do
+    with_delay =
+      r
+      |> Enum.with_index()
+      |> Enum.filter(&match?({{:ok, _}, _}, &1))
+      |> Enum.chunk_every(2, 1, :discard)
+      |> Enum.map(fn [{{:ok, f}, ind}, {{:ok, s}, _}] ->
+        {ind, {:ok, Map.put(f, "delay_added", DateTime.diff(s["date"], f["date"]))}}
+      end)
+
+    Enum.reduce(with_delay, r, fn {ind, value}, acc ->
+      List.replace_at(acc, ind, value)
+    end)
   end
 
   def has_enough_entries?(entries) when is_list(entries) and length(entries) > 1 do
@@ -102,14 +136,6 @@ defmodule SmtpAnn.Header do
     |> Enum.reduce(%{}, fn [label, entry], acc ->
       Map.update(acc, label, [entry], &[entry | &1])
     end)
-  end
-
-  def expand_received_entries(%{"Received" => []} = header), do: header
-
-  def expand_received_entries(%{"Received" => received} = header) when is_list(received) do
-    received
-    |> Enum.map(&parse_received/1)
-    |> then(&Map.put(header, "Received", &1))
   end
 
   def parse_spf(spf_string) when is_binary(spf_string) do

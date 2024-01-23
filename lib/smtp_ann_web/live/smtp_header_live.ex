@@ -13,6 +13,7 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
           <p>Sent To: <%= entry["receiving_server"] %></p>
           <p>Received at: <%= entry["date"] %></p>
           <p>Protocol: <%= entry["protocol"] %></p>
+          <p>Delay Added: <%= entry["delay_added"] || "*" %> </p> 
         <% {:error, reason, string} -> %>
           <p>Couldn't parse due to: <%= reason %></p>
           <p>Full Entry: <%= string %></p>
@@ -37,16 +38,34 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
   def spf_entry(assigns) do
     ~H"""
     <div class="flex flex-row"> 
-      <p :if={@entry["result"] == "Pass"} class="text-green-500 text-lg">
+      <p :if={@entry["result"] == "Pass"} class="text-green-500 text-lg mr-2">
         Pass
       </p>
-      <p :if={@entry["result"] != "Pass"} class="text-red-500 text-lg">
+      <p :if={@entry["result"] != "Pass"} class="text-red-500 text-lg mr-2">
         Fail
       </p>
       <p>   
         Sender: <%= @entry["sender"] %>
       </p>
     </div>
+    """
+  end
+  
+  attr :delivery_time, :integer, required: true
+  def delivery_time(assigns) do
+    ~H"""
+    <p>
+      Total Delivery Time: <%= @delivery_time %>
+    </p>
+    """
+  end
+
+  attr :subject, :string, required: true
+  def subject(assigns) do
+    ~H"""
+    <p>
+      Subject: <%= @subject %>
+    </p>
     """
   end
 
@@ -61,6 +80,8 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
         </h2>
       </div>
       <div :if={@parsed_header} class="mt-5 flex flex-col gap-3">
+        <.delivery_time delivery_time={@parsed_header["delivery_time"]} />
+        <.subject subject={@parsed_header["Subject"]} /> 
         <.to_from_entry email_to={@parsed_header["To"]} direction="To" />
         <.to_from_entry email_to={@parsed_header["From"]} direction="From" />
         <.spf_entry :for={{:ok, spf_entry} <- @parsed_header["Received-SPF"]} entry={spf_entry}/>
