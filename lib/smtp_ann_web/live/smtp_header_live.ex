@@ -116,7 +116,7 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
     <form phx-submit="header-submitted">
       <div class="form-control">
         <div class="label">
-          <div class="label-text">SMTP Header</div>
+          <div class="label-text text-lg">Paste Header Here</div>
         </div>
         <.input
           phx-hook="ClearValue" type="textarea" name="header" value="" id="header-input"
