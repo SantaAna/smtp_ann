@@ -11,6 +11,9 @@ module.exports = {
     "../lib/smtp_ann_web.ex",
     "../lib/smtp_ann_web/**/*.*ex"
   ],
+  daisyui: {
+      themes: ["dark", "light"]
+  },
   theme: {
     extend: {
       colors: {
@@ -19,6 +22,7 @@ module.exports = {
     },
   },
   plugins: [
+    require("daisyui"),
     require("@tailwindcss/forms"),
     // Allows prefixing tailwind classes with LiveView classes to add rules
     // only when LiveView classes are applied, for example:
