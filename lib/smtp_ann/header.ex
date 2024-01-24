@@ -175,7 +175,7 @@ defmodule SmtpAnn.Header do
 
   def extract_info(%{argument: received_string} = input) do
     case Regex.named_captures(
-           ~r/from (?<sending_server>.*) by (?<receiving_server>.*) with (?<protocol>.*); (?<date>.*)/,
+           ~r/from (?<sending_server>.*)?\w?by (?<receiving_server>.*) with (?<protocol>.*); (?<date>.*)/,
            received_string
          ) do
       nil -> Map.put(input, :error, true) |> Map.put(:reason, "invalid received string")
