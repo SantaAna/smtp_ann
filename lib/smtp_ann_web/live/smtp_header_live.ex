@@ -112,17 +112,14 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
 
   def render(assigns) do
     ~H"""
+    <div class="my-3 mx-10">
     <form phx-submit="header-submitted">
       <div class="form-control">
         <div class="label">
           <div class="label-text">SMTP Header</div>
         </div>
         <.input
-          phx-hook="ClearValue"
-          type="textarea"
-          name="header"
-          value=""
-          id="header-input"
+          phx-hook="ClearValue" type="textarea" name="header" value="" id="header-input"
           class="textarea-lg w-full textarea-bordered h-48"
         />
       </div>
@@ -155,6 +152,7 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
         <.received_line :for={entry <- @parsed_header["Received"]} entry={entry} />
       </div>
     </form>
+    </div>
     """
   end
 
