@@ -14,7 +14,6 @@ defmodule SmtpAnn.Header do
     wrap(header)
     |> applicative(&unfold/1)
     |> applicative(&entry_split/1)
-    |> IO.inspect(lable: "should be lines")
     |> applicative(&has_label_format/1)
     |> applicative(&has_enough_entries?/1)
     |> applicative(&entry_label/1)
