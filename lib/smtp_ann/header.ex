@@ -14,6 +14,8 @@ defmodule SmtpAnn.Header do
     wrap(header)
     |> applicative(&unfold/1)
     |> applicative(&entry_split/1)
+    |> IO.inspect(lable: "should be lines")
+    |> applicative(&has_label_format/1)
     |> applicative(&has_enough_entries?/1)
     |> applicative(&entry_label/1)
     |> applicative(&has_receive_headers?/1)
@@ -96,6 +98,20 @@ defmodule SmtpAnn.Header do
   end
 
   def has_receive_headers?(_), do: {:error, "missing received headers"}
+
+  def has_label_format(lines) do
+    if Enum.all?(lines, &String.contains?(&1, ":")) do
+      {:ok, lines}
+    else
+      {:error,
+        """
+        Input is not composed of valid header tags.
+        Tags should be in a <tag name>:<tag-value> 
+        format.
+        """
+      }
+    end
+  end 
 
   @doc """
   Headers are usually presented to a user "folded",
