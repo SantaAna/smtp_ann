@@ -22,8 +22,7 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
             </div>
           </div>
         <% {:error, reason, string} -> %>
-          <div class="collapse collapse-arrow border border-base-300 bg-base-200">
-            <input type="checkbox" />
+          <div tabindex="0" class="collapse collapse-arrow border border-base-300 bg-base-200">
             <div class="collapse-title text-xl font-medium">
               <p>Couldn't parse due to: <%= reason %></p>
             </div>
@@ -93,65 +92,75 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
 
   def summary(assigns) do
     ~H"""
-    <div class="flex flex-row gap-2">
-      <div class="flex flex-col">
-        <div class="font-bold ">Subject</div>
-        <div class="font-bold ">From</div>
-        <div class="font-bold ">To</div>
-        <div class="font-bold ">Time to Deliver</div>
-      </div>
-      <div class="flex flex-col">
-        <div><%= @subject %></div>
-        <div><%= Enum.join(@from, ",") %></div>
-        <div><%= Enum.join(@to, ",") %></div>
-        <div><%= @delivery_time %> seconds</div>
-      </div>
-    </div>
+      <table class="table">
+      <tbody>
+      <tr>
+        <th class="font-bold ">Subject</th>
+        <td><%= @subject %></td>
+      </tr>
+      <tr>
+      </tr>
+        <th class="font-bold ">From</th>
+        <td><%= Enum.join(@from, ",") %></td>
+      <tr>
+        <th class="font-bold ">To</th>
+        <td><%= Enum.join(@to, ",") %></td>
+      </tr>
+      <tr>
+        <th class="font-bold ">Time to Deliver</th>
+        <td><%= @delivery_time %> seconds</td>
+      </tr>
+      </tbody>
+      </table>
     """
   end
 
   def render(assigns) do
     ~H"""
     <div class="my-3 mx-10">
-    <form phx-submit="header-submitted">
-      <div class="form-control">
-        <div class="label">
-          <div class="label-text text-lg">Paste Header Here</div>
+      <form phx-submit="header-submitted">
+        <div class="form-control">
+          <div class="label">
+            <div class="label-text text-lg">Paste Header Here</div>
+          </div>
+          <.input
+            phx-hook="ClearValue"
+            type="textarea"
+            name="header"
+            value=""
+            id="header-input"
+            class="textarea-lg w-full textarea-bordered h-48"
+          />
         </div>
-        <.input
-          phx-hook="ClearValue" type="textarea" name="header" value="" id="header-input"
-          class="textarea-lg w-full textarea-bordered h-48"
-        />
-      </div>
-      <div class="flex flex-row mt-3 gap-3">
-        <.button class="btn-primary">Submit</.button>
-        <.button
-          type="button"
-          class="btn-secondary"
-          phx-click={JS.push("clear-input") |> JS.dispatch("clear-value", to: "#header-input")}
-        >
-          Clear
-        </.button>
-      </div>
-      <div :if={@error_message}>
-        <h2 class="text-red-500 text-xl">
-          Error: <%= @error_message %>
-        </h2>
-      </div>
-      <div :if={@parsed_header} class="mt-5 flex flex-col gap-3">
-        <h2 class="text-xl font-bold mt-5 mb-2">Summary</h2>
-        <.summary
-          from={@parsed_header["From"]}
-          to={@parsed_header["To"]}
-          subject={@parsed_header["Subject"]}
-          delivery_time={@parsed_header["delivery_time"]}
-        />
-        <h2 class="text-xl font-bold mt-5 mb-2">SPF Results</h2>
-        <.spf_entry :for={{:ok, spf_entry} <- @parsed_header["Received-SPF"]} entry={spf_entry} />
-        <h2 class="text-xl font-bold mt-5 mb-2">Hops</h2>
-        <.received_line :for={entry <- @parsed_header["Received"]} entry={entry} />
-      </div>
-    </form>
+        <div class="flex flex-row mt-3 gap-3">
+          <.button class="btn-primary">Submit</.button>
+          <.button
+            type="button"
+            class="btn-secondary"
+            phx-click={JS.push("clear-input") |> JS.dispatch("clear-value", to: "#header-input")}
+          >
+            Clear
+          </.button>
+        </div>
+        <div :if={@error_message}>
+          <h2 class="text-red-500 text-xl">
+            Error: <%= @error_message %>
+          </h2>
+        </div>
+        <div :if={@parsed_header} class="mt-5 flex flex-col gap-3">
+          <h2 class="text-xl font-bold mt-5 mb-2">Summary</h2>
+          <.summary
+            from={@parsed_header["From"]}
+            to={@parsed_header["To"]}
+            subject={@parsed_header["Subject"]}
+            delivery_time={@parsed_header["delivery_time"]}
+          />
+          <h2 class="text-xl font-bold mt-5 mb-2">SPF Results</h2>
+          <.spf_entry :for={{:ok, spf_entry} <- @parsed_header["Received-SPF"]} entry={spf_entry} />
+          <h2 class="text-xl font-bold mt-5 mb-2">Hops</h2>
+          <.received_line :for={entry <- @parsed_header["Received"]} entry={entry} />
+        </div>
+      </form>
     </div>
     """
   end
