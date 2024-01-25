@@ -16,6 +16,9 @@ defmodule SmtpAnn.DnsblServers.DnsblServer do
     |> validate_domain_name()
   end
 
+  @doc """
+  Quick and dirty check that a dns hostname is valid
+  """
   def validate_domain_name(cs) do
     validate_change(cs, :dns_name, fn :dns_name, dns_name -> 
       if Regex.match?(~r/^([[:alnum:]-]+\.)+([[:alnum:]-]+\.?)$/, dns_name) do
