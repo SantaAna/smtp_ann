@@ -92,32 +92,31 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
 
   def summary(assigns) do
     ~H"""
-      <table class="table">
+    <table class="table">
       <tbody>
-      <tr>
-        <th class="font-bold ">Subject</th>
-        <td><%= @subject %></td>
-      </tr>
-      <tr>
-      </tr>
+        <tr>
+          <th class="font-bold ">Subject</th>
+          <td><%= @subject %></td>
+        </tr>
+        <tr></tr>
         <th class="font-bold ">From</th>
         <td><%= Enum.join(@from, ",") %></td>
-      <tr>
-        <th class="font-bold ">To</th>
-        <td><%= Enum.join(@to, ",") %></td>
-      </tr>
-      <tr>
-        <th class="font-bold ">Time to Deliver</th>
-        <td><%= @delivery_time %> seconds</td>
-      </tr>
+        <tr>
+          <th class="font-bold ">To</th>
+          <td><%= Enum.join(@to, ",") %></td>
+        </tr>
+        <tr>
+          <th class="font-bold ">Time to Deliver</th>
+          <td><%= @delivery_time %> seconds</td>
+        </tr>
       </tbody>
-      </table>
+    </table>
     """
   end
 
   def render(assigns) do
     ~H"""
-    <div class="my-3 mx-10">
+    <div class="my-10 mx-10">
       <form phx-submit="header-submitted">
         <div class="form-control">
           <div class="label">

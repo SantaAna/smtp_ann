@@ -23,8 +23,8 @@ defmodule SmtpAnn.Dnsbl do
       case :inet_res.resolve(String.to_charlist(lookup), :in, :a) do
         {:error, :nxdomain} -> {:ok, :ok}
         _ -> 
-          {:ok, :black_listed}
           Logger.info([black_list_response: "#{inspect lookup}", bl_server: bldomain])
+          {:ok, :black_listed}
       end
     else
       _ -> {:error, "invalid IP address"}

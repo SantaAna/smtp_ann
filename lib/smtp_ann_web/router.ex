@@ -19,6 +19,7 @@ defmodule SmtpAnnWeb.Router do
 
     get "/", PageController, :home
     live "/smtpheader", SmtpHeaderLive
+    live "/dnsblcheck", DnsblCheckLive
   end
 
   # Other scopes may use custom stacks.
