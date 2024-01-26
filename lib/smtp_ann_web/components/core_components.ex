@@ -344,7 +344,7 @@ defmodule SmtpAnnWeb.CoreComponents do
     </div>
     """
   end
-  
+
   def input(%{type: "textarea"} = assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
@@ -367,8 +367,13 @@ defmodule SmtpAnnWeb.CoreComponents do
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
     ~H"""
-    <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+    <div phx-feedback-for={@name} class="form-control">
+      <div class="label">
+        <span class="label-text" for={@id}><%= @label %></span>
+        <span class="alt-text text-error text-xs">
+          <%= List.first(@errors) %>
+        </span>
+      </div>
       <input
         type={@type}
         name={@name}
@@ -380,7 +385,6 @@ defmodule SmtpAnnWeb.CoreComponents do
         ]}
         {@rest}
       />
-      <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
   end
