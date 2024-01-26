@@ -7,6 +7,7 @@ defmodule SmtpAnn.DnsblServers do
 
   import Ecto.Query, warn: false
   alias SmtpAnn.Repo
+  alias Ecto.Changeset
 
   alias SmtpAnn.DnsblServers.DnsblServer
 
@@ -89,6 +90,24 @@ defmodule SmtpAnn.DnsblServers do
   """
   def delete_dnsbl_server(%DnsblServer{} = dnsbl_server) do
     Repo.delete(dnsbl_server)
+  end
+
+  def ip_changeset(params \\ %{}) do
+    {%{}, %{ip_address: :string}} 
+    |> Changeset.cast(params, [:ip_address]) 
+    |> Changeset.validate_required([:ip_address])
+    |> Changeset.validate_change(:ip_address, fn :ip_address, ip_address -> 
+      if valid_ipv4_string?(ip_address) do
+        []
+      else
+        [ip_address: "invalid ip address string"]
+      end
+    end)
+  end
+
+  def validate_ip_input(params) when is_map(params) do
+    ip_changeset(params)
+    |> Changeset.apply_action(:insert)
   end
 
   @doc """
