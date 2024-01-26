@@ -347,11 +347,17 @@ defmodule SmtpAnnWeb.CoreComponents do
 
   def input(%{type: "textarea"} = assigns) do
     ~H"""
-    <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+    <div phx-feedback-for={@name} class="form-control">
+      <div class="label">
+        <span class="label-text" for={@id}><%= @label %></span>
+        <span class="alt-text text-error text-xs">
+          <%= List.first(@errors) %>
+        </span>
+      </div>
       <textarea
         id={@id}
         name={@name}
+        value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
           "textarea",
           @class,
@@ -359,7 +365,6 @@ defmodule SmtpAnnWeb.CoreComponents do
         ]}
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
-      <.error :for={msg <- @errors}><%= msg %></.error>
     </div>
     """
   end
