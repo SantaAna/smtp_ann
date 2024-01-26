@@ -3,7 +3,7 @@ defmodule SmtpAnnWeb.DnsblCheckLive do
   alias SmtpAnn.DnsblServers
   alias Phoenix.LiveView.AsyncResult
 
-  attr :source, :string, required: true
+  attr :source, :string, required: true 
   attr :result, :atom, required: true
 
   def result(assigns) do
@@ -53,6 +53,7 @@ defmodule SmtpAnnWeb.DnsblCheckLive do
     </div>
     """
   end
+
   def render(assigns) do
     ~H"""
     <div class="my-32 mx-auto">
@@ -66,9 +67,15 @@ defmodule SmtpAnnWeb.DnsblCheckLive do
               type="text"
               class="input input-bordered input-lg max-w-lg w-full"
               field={@ip_form[:ip_address]}
+              label="IPv4 Address"
               disabled={if @result && @result.loading, do: true, else: nil}
             />
-            <.button class={["btn-primary", "flex-grow-0"] ++ if @result && @result.loading, do: ["btn-disabled"], else: []}>Submit</.button>
+            <.button class={
+              ["btn-primary", "flex-grow-0"] ++
+                if @result && @result.loading, do: ["btn-disabled"], else: []
+            }>
+              Submit
+            </.button>
           </div>
         </div>
       </.form>
@@ -126,7 +133,7 @@ defmodule SmtpAnnWeb.DnsblCheckLive do
   end
 
   def handle_async(:fetch_bl, {:ok, fetched_results}, socket) do
-    %{result: result} = socket.assigns 
+    %{result: result} = socket.assigns
     {:noreply, assign(socket, :result, AsyncResult.ok(result, fetched_results))}
   end
 end
