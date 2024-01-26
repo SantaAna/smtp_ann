@@ -107,9 +107,7 @@ defmodule SmtpAnnWeb.DnsblCheckLive do
     |> then(&{:ok, &1})
   end
 
-  def handle_event("ip-submitted", %{"ip_address" => params}, socket) do
-    IO.inspect(params, label: "params received from form")
-
+  def handle_event("ip-submitted", %{"ip_address" => params} , socket) do
     case DnsblServers.validate_ip_input(params) do
       {:ok, %{ip_address: ip}} ->
         socket
