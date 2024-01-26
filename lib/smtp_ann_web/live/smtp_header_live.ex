@@ -117,19 +117,14 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
   def render(assigns) do
     ~H"""
     <div class="my-10 mx-10">
-      <form phx-submit="header-submitted">
+      <.form phx-submit="header-submitted" for={@header_form}>
         <div class="form-control">
-          <div class="label">
-            <div class="label-text text-lg">Paste Header Here</div>
-          </div>
           <.input
             phx-hook="ClearValue"
             type="textarea"
-            name="header"
-            value=""
+            field={@header_form[:header]}
             id="header-input"
-            class="textarea-lg w-full textarea-bordered h-48"
-          />
+            class="textarea-lg w-full textarea-bordered h-48" label="Paste SMTP Header Below" />
         </div>
         <div class="flex flex-row mt-3 gap-3">
           <.button class="btn-primary">Submit</.button>
@@ -140,11 +135,6 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
           >
             Clear
           </.button>
-        </div>
-        <div :if={@error_message}>
-          <h2 class="text-red-500 text-xl">
-            Error: <%= @error_message %>
-          </h2>
         </div>
         <div :if={@parsed_header} class="mt-5 flex flex-col gap-3">
           <h2 class="text-xl font-bold mt-5 mb-2">Summary</h2>
@@ -159,37 +149,37 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
           <h2 class="text-xl font-bold mt-5 mb-2">Hops</h2>
           <.received_line :for={entry <- @parsed_header["Received"]} entry={entry} />
         </div>
-      </form>
+      </.form>
     </div>
     """
   end
 
   def mount(_params, _session, socket) do
+    header_form = to_form(Header.header_cs(), as: "header_form")
     socket
+    |> assign(header_form: header_form)
     |> assign(parsed_header: nil)
-    |> assign(error_message: nil)
     |> then(&{:ok, &1})
   end
 
   def handle_event("clear-input", _params, socket) do
     socket
+    |> assign(header_form: to_form(Header.header_cs(), as: "header_form"))
     |> assign(parsed_header: nil)
     |> then(&{:noreply, &1})
   end
 
-  def handle_event("header-submitted", %{"header" => header}, socket) do
-    {error_message, parsed_header} =
-      case Header.parse(header) do
-        {:ok, parsed_header} ->
-          {nil, parsed_header}
-
-        {:error, message} ->
-          {message, nil}
-      end
-
-    socket
-    |> assign(parsed_header: parsed_header)
-    |> assign(error_message: error_message)
-    |> then(&{:noreply, &1})
+  def handle_event("header-submitted", %{"header_form" => params}, socket) do
+    
+    case Header.validate_header(params) do
+      {:ok, validated} -> 
+        socket
+        |> assign(parsed_header: validated.parsed)
+        |> then(&{:noreply, &1})
+      {:error, cs} ->
+        socket
+        |> assign(header_form: to_form(cs, as: "header_form"))
+        |> then(&{:noreply, &1})
+    end
   end
 end
