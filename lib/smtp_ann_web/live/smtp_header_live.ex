@@ -1,6 +1,6 @@
 defmodule SmtpAnnWeb.SmtpHeaderLive do
   use SmtpAnnWeb, :live_view
-  alias SmtpAnn.Header
+  alias SmtpAnn.Headers
 
   attr :entry, :any, required: true
 
@@ -155,7 +155,7 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
   end
 
   def mount(_params, _session, socket) do
-    header_form = to_form(Header.header_cs(), as: "header_form")
+    header_form = to_form(Headers.header_cs(), as: "header_form")
     socket
     |> assign(header_form: header_form)
     |> assign(parsed_header: nil)
@@ -164,14 +164,14 @@ defmodule SmtpAnnWeb.SmtpHeaderLive do
 
   def handle_event("clear-input", _params, socket) do
     socket
-    |> assign(header_form: to_form(Header.header_cs(), as: "header_form"))
+    |> assign(header_form: to_form(Headers.header_cs(), as: "header_form"))
     |> assign(parsed_header: nil)
     |> then(&{:noreply, &1})
   end
 
   def handle_event("header-submitted", %{"header_form" => params}, socket) do
     
-    case Header.validate_header(params) do
+    case Headers.validate_header(params) do
       {:ok, validated} -> 
         socket
         |> assign(parsed_header: validated.parsed)
