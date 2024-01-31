@@ -50,7 +50,8 @@ defmodule SmtpAnn.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, ">= 0.0.0"}
+      {:bandit, ">= 0.0.0"},
+      {:nimble_parsec, "~> 1.4"}
     ]
   end
 
