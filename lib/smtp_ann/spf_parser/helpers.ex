@@ -82,21 +82,11 @@ defmodule SmtpAnn.SpfParser.Helpers do
     |> tag(:all_entry)
   end
   
-  def echo(rest, args, context, line, offset) do
-    IO.inspect(rest, label: "rest")
-    IO.inspect(args, label: "args")
-    IO.inspect(context, label: "context")
-    IO.inspect(line, label: "line")
-    IO.inspect(offset, label: "offset")
-    {:error, "invalid label at character: #{offset}"}
-    # {rest, args, context}
-  end
-
   def detect_leftover(rest, args, context, _line, offset) do
     if rest != "" do
-      {:error, "invalid label starting at character: #{offset}"}
+      {:error, %{type: :invalid_label, pos: offset}}
     else
-      {rest, args, context}
+      {rest, args, Map.put(context, :hello, "there")}
     end
   end
 
