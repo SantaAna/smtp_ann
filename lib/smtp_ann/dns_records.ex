@@ -40,10 +40,19 @@ defmodule SmtpAnn.DnsRecords do
         {:error, cs}
     end
   end
-  
+
+  def extract_error_type(%{error: {type, _}}), do: type
+  def extract_error_pos(%{error: {_, %{pos: pos}}}), do: pos
+  def extract_unparsed(%{unparsed: unparsed}), do: unparsed
+
   
   defp query(%{record_type: record_type, domain_name: domain_name}) do
-    dispatcher(record_type).(domain_name)
+    case dispatcher(record_type).(domain_name) do
+      {:error, _} -> 
+        {:error, :lookup_error}
+      {:ok, records} ->
+        {:ok, records}
+    end
   end
 
   defp dispatcher(record_type) do
