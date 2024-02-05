@@ -329,18 +329,24 @@ defmodule SmtpAnnWeb.CoreComponents do
   def input(%{type: "select"} = assigns) do
     ~H"""
     <div phx-feedback-for={@name}>
-      <.label for={@id}><%= @label %></.label>
+      <div class={["form-control", @class]}>
+      <div class="label">
+        <div class="label-text"><%= @label %></div>
+        <div class="label-text-alt text-xs"> 
+          <%= List.first(@errors) %>
+        </div>
+      </div>
+      <option :if={@prompt} value=""> <%= @prompt %> </option>
       <select
         id={@id}
         name={@name}
-        class="mt-2 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm"
         multiple={@multiple}
+        class="select select-bordered"
         {@rest}
       >
-        <option :if={@prompt} value=""><%= @prompt %></option>
         <%= Phoenix.HTML.Form.options_for_select(@options, @value) %>
       </select>
-      <.error :for={msg <- @errors}><%= msg %></.error>
+      </div>
     </div>
     """
   end
