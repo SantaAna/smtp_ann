@@ -18,6 +18,7 @@ defmodule SmtpAnn.SpfParser.Helpers do
   def ip4_address do
     times(oct(), 4)
     |> optional(cidr_suffix())
+    |> tag(:ip_address)
   end
 
   def domain_name_component do
@@ -29,6 +30,7 @@ defmodule SmtpAnn.SpfParser.Helpers do
     domain_name_component()
     |> times(concat(ascii_char([?.]), domain_name_component()), max: 126)
     |> ignore(times(ascii_char([?.]), max: 1))
+    |> tag(:domain_name)
   end
 
   def label(label) do
