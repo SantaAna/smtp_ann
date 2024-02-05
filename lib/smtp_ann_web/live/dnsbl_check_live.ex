@@ -3,7 +3,7 @@ defmodule SmtpAnnWeb.DnsblCheckLive do
   alias SmtpAnn.DnsblServers
   alias Phoenix.LiveView.AsyncResult
 
-  attr :source, :string, required: true 
+  attr :source, :string, required: true
   attr :result, :atom, required: true
 
   def result(assigns) do
@@ -107,7 +107,7 @@ defmodule SmtpAnnWeb.DnsblCheckLive do
     |> then(&{:ok, &1})
   end
 
-  def handle_event("ip-submitted", %{"ip_address" => params} , socket) do
+  def handle_event("ip-submitted", %{"ip_address" => params}, socket) do
     case DnsblServers.validate_ip_input(params) do
       {:ok, %{ip_address: ip}} ->
         socket
