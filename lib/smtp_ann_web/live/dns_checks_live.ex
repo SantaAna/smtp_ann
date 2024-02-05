@@ -31,27 +31,54 @@ defmodule SmtpAnnWeb.DnsChecksLive do
 
   attr :record, :map, required: true
 
+  def record(%{record: %{type: :mx, error: nil}} = assigns) do
+    assigns = assign_new(assigns, :parsed, fn -> assigns[:record].parsed end)
+    ~H"""
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">MX Entry</h2>
+        <p> Server: <%= @parsed.server %>, Priority: <%= @parsed.priority %> </p>
+        <p> TTL: <%= @record.ttl %> </p>
+      </div>
+    </div>
+    """
+  end
+
+  def record(%{record: %{type: :ns, error: nil}} = assigns) do
+    assigns = assign_new(assigns, :parsed, fn -> assigns[:record].parsed end)
+    ~H"""
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">NS Entry</h2>
+        <p> Server: <%= @parsed.server %></p>
+        <p> TTL: <%= @record.ttl %> </p>
+      </div>
+    </div>
+    """
+  end
+
   def record(%{record: %{type: :spf, error: nil}} = assigns) do
+    assigns = assign_new(assigns, :parsed, fn -> assigns[:record].parsed end)
     ~H"""
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body">
         <h2 class="card-title">SPF Entry</h2>
         <h3 class="font-semibold">SPF Record</h3>
         <p><%= @record.data %></p>
-        <.entry_group parsed={@record.parsed} key={:ip4_entry} header="Allowed Sending IPs" />
+        <.entry_group parsed={@parsed} key={:ip4_entry} header="Allowed Sending IPs" />
         <.entry_group
-          parsed={@record.parsed}
+          parsed={@parsed}
           key={:include_entry}
           header="Include SPF Records from Domains"
         />
         <.entry_group
-          parsed={@record.parsed}
+          parsed={@parsed}
           key={:a_entry}
           header="Allow Sending for A Records in Domains"
         />
-        <.entry_group parsed={@record.parsed} key={:exists_entry} header="Records to match" />
-        <.entry_group parsed={@record.parsed} key={:ptr_entry} header="Allowed PTR records" />
-        <.entry_group parsed={@record.parsed} key={:mx_entry} header="Allowed mx records" />
+        <.entry_group parsed={@parsed} key={:exists_entry} header="Records to match" />
+        <.entry_group parsed={@parsed} key={:ptr_entry} header="Allowed PTR records" />
+        <.entry_group parsed={@parsed} key={:mx_entry} header="Allowed mx records" />
       </div>
     </div>
     """
@@ -95,8 +122,6 @@ defmodule SmtpAnnWeb.DnsChecksLive do
   end
 
   def record(assigns) do
-    IO.inspect(assigns)
-
     ~H"""
     <p>
       <%= inspect(@record) %>
@@ -106,23 +131,33 @@ defmodule SmtpAnnWeb.DnsChecksLive do
 
   def render(assigns) do
     ~H"""
-    <div class="w-1/2">
-      <.form for={@lookup_form} phx-submit="lookup-submitted">
-        <.input label="Target Domain" field={@lookup_form[:domain_name]} />
-        <.input type="select" options={DnsRecords.record_types()} field={@lookup_form[:record_type]}>
-        </.input>
-        <.button class="btn-primary">Submit</.button>
-      </.form>
-    </div>
-    <div :if={@result}>
-      <%= case @result do %>
-        <% {:error, :lookup_error} -> %>
-          <.lookup_error />
-        <% {:ok, []} -> %>
-          <.no_results />
-        <% {:ok, records} -> %>
-          <.record :for={record <- records} record={record} />
-      <% end %>
+    <div class="my-32 mx-32">
+      <div class="w-1/2">
+        <.form for={@lookup_form} phx-submit="lookup-submitted">
+          <div class="flex flex-row">
+              <.input label="Target Domain" field={@lookup_form[:domain_name]} />
+              <.input
+                type="select"
+                options={DnsRecords.record_types()}
+                field={@lookup_form[:record_type]}
+                class="mt-5"
+              />
+          </div>
+          <.button class="btn-primary">Submit</.button>
+        </.form>
+      </div>
+      <div :if={@result}>
+        <%= case @result do %>
+          <% {:error, :lookup_error} -> %>
+            <.lookup_error />
+          <% {:ok, []} -> %>
+            <.no_results />
+          <% {:ok, records} -> %>
+            <div class="flex flex-col gap-3">
+            <.record :for={record <- records} record={record} />
+            </div>
+        <% end %>
+      </div>
     </div>
     """
   end
