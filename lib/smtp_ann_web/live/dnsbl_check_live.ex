@@ -8,7 +8,7 @@ defmodule SmtpAnnWeb.DnsblCheckLive do
 
   def result(assigns) do
     ~H"""
-    <div :if={@result == :blocked}>
+    <div :if={@result == :failed}>
       <div class="tooltip" data-tip={"blacklisted by #{@source}"}>
         <div class="badge badge-error p-2">
           <div class="flex flex-row gap-2">
@@ -116,7 +116,7 @@ defmodule SmtpAnnWeb.DnsblCheckLive do
           DnsblServers.validate_against_all(ip)
           |> Enum.map(fn
             {server, {:ok, :ok}} -> %{server: server, result: :passed}
-            {server, {:ok, :blacklisted}} -> %{server: server, result: :failed}
+            {server, {:ok, :black_listed}} -> %{server: server, result: :failed}
             {server, {:error, _}} -> %{server: server, result: :invalid}
           end)
         end)
@@ -132,6 +132,7 @@ defmodule SmtpAnnWeb.DnsblCheckLive do
 
   def handle_async(:fetch_bl, {:ok, fetched_results}, socket) do
     %{result: result} = socket.assigns
+    IO.inspect(fetched_results)
     {:noreply, assign(socket, :result, AsyncResult.ok(result, fetched_results))}
   end
 end
